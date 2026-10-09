@@ -6,11 +6,35 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+### Changed
+
+- Replaced placeholder instructions and empty suggestions in the word replacement tables with concrete, direct alternatives for previously incomplete entries (#215).
+- Removed `breakthrough` from the `game-changer` / `game-changing` suggestions to avoid preserving unsupported importance claims. Added missing context fallbacks and adjective/noun clarifications for `transformative`, `paradigm-shifting`, and `despite challenges` (#380).
+
+### Fixed
+
+- Short Russian words in Russian technical prose with English terms ("`make_json_safe()` на Enum", "r/StableDiffusion от 07.10") are no longer read as homoglyph swaps. The lookalike rule now decides per sentence: a dot inside a date or a version and a hard line wrap no longer end it, and a word spelled entirely in lookalike letters is swapped only when its sentence has no Russian or Greek letter that is not a lookalike (follow-up to #352). Sentence punctuation, Markdown separators/tables and HTML block starts keep unrelated blocks separate. Fully substituted words beside Russian or Greek prose, including across plain hard wraps, remain a documented detection limit.
+- Treat "which/what features" as a noun in an indirect question (right after a question verb such as decide, check or find out, or at the start of a sentence) and "whose features" as a noun; every other use keeps the existing verb checks (#384). Recognize explicitly singular subjects before "features support for" as a verb, preserving plural-noun readings, and recognize article-led indirect-question verb cases with compound subjects (#391).
+- Narrow the `features` clarity finding with noun-context heuristics for product writing, including headings and bare objects ("three new features", "Features", "we ship features"). Keep findings for tested verb uses such as "the app features a dashboard", relative clauses and versioned product subjects. This is a context heuristic rather than a complete grammatical classifier (#351).
+- Score long self-scan documents with a rounded word-weighted average of their accepted chunks instead of the highest chunk score. Short-document scores and issue/category totals stay unchanged (#382).
+- Narrow the evolution-of shape in `significance-inflation` to require a preceding inflating word, such as "chapter" or "turning point"; neutral scientific and historical uses ("a key stage in the evolution of the vertebrate eye", "an odd place in the evolution of systems languages") no longer flag (#212).
+- Narrow the step-towards/forward shape in `template-phrase` to require a preceding vague-praise adjective, such as "major" or "crucial"; neutral milestones ("a first step towards the full API", "a small step towards cutting our storage bill") no longer flag (#212).
+
+## [3.37.0] — 2026-10-04
+
+### Documentation
+
+- Document paste-field limits and current file-size measurement. Recommend a directory install for Windsurf and the native plugin or an activated Knowledge upload for ChatGPT (#219).
+
+### Packaging
+
+- The six ChatGPT/Codex Skills that lacked them now carry `version` and `license` in their frontmatter, so a bug report or vendored copy can name its version. `validate-openai-plugin.py` fails when any Skill's version is missing or differs from the plugin manifest, both in PR checks and release preflight before tagging or publishing (#246).
+
 ### Fixed
 
 - Fix empty-result stats and non-string input handling (#234).
 - Cyrillic and Greek prose no longer reads as a homoglyph bypass. Script dominance is decided per sentence, and only mixed-script or fully substituted words surrounded by non-Russian text are swapped; limits are documented in `detector/patterns.js` (#352).
-- "Narrow the false-concession rule to require a vague close in the following clause, widen the subject past one word, and drop the bare despite-challenges opener" (#211).
+- Narrow the false-concession rule to require a vague close in the following clause, allow multi-word subjects, and drop the bare "despite challenges" opener (#211).
 
 ### Added
 
@@ -27,6 +51,7 @@ All notable changes to this project are documented here.
 - Word joiners (U+2060) next to URLs, spaces, or punctuation no longer raise the bypass-character flag. Show-notes editors insert them to control line breaks, and four of them pushed a plain paragraph of links to `AI_ONLY`. They are still stripped before matching, and a word joiner that splits a word still counts (#351).
 - A word joiner between two letters outside the Basic Multilingual Plane now counts as a bypass character (#353).
 - The negative-parallelism proximity gate now counts distinct reported frames. Repeating an identical plain contrast no longer produces one finding from a gate that counted two raw matches (#353).
+- The Cursor rule and the portable paste file now state the manual marks-pass convention once. The paragraph no longer tells the model to run normalizer flags (`--write`, `--quotes`, `--reference`) that those standalone files cannot use (#218).
 - Check how a destination renders single newlines before delivering prose; unwrap hard-wrapped paragraphs only where the breaks remain visible, while preserving intentional line breaks and fixed-width Markdown source layout (#122).
 - Performed-insight phrases now cover staged discoveries: a judgment framed as a twist the writer found ("the recording turned out to be the least interesting part", "the real story was"). The detector keeps the superlative-plus-insight-noun form and reveal-style "real story" continuations narrow, so literal uses such as "turned out to be the most expensive option" and "the real story was covered" stay clean. Nested emotional-flatline wording and sentence-initial "Turns out" count once when contained in a staged discovery. In short social copy, one staged discovery carrying the payoff is enough to fix. The fabricated-speaker-perspective guardrail now also covers drafting new copy in someone else's voice. No new category.
 - The detector now skips quoted material, as the skill's self-reference escape hatch describes. Words inside a double-quoted span (straight or curly) and single-line blockquotes, including nested `>>` lines, lists inside a quote and the compact `>text` form, no longer count against the writer, so quoting AI output to criticise it stops scoring its vocabulary. Bypass characters inside a quotation no longer raise the normalization flag. `stats.maskedQuotes` reports how many spans were skipped. Single quotes still count, because apostrophes would pair up across ordinary prose. Issue and highlight offsets still point at the original text (#238).
