@@ -43,7 +43,7 @@ jobs:
       # Depth 1: only the current content of each file matters.
       - name: Clone the public promo surfaces
         env:
-          OWNER: ${{ github.repository_owner }}
+          OWNER: conorbronsdon
         run: |
           cd "$GITHUB_WORKSPACE/.."
           for repo in agent-skills ai-tools-for-creators; do
